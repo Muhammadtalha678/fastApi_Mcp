@@ -1,0 +1,5 @@
+fastapi==0.115.12
+mcp==1.7.1
+requests==2.32.3
+uvicorn==0.34.2
+google-genai==1.13.0
