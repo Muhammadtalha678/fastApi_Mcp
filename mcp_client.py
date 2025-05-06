@@ -91,11 +91,9 @@ class McpClient:
                         # print("final_result",final_result.candidates[0].content.parts[0].text)
                         break
                     except Exception as e:
-#                         f"Function to call: {function_call.name}"
-# f"Arguments: {function_call.args}"
-                        print(f"error get tool response of {function_call.name}")
-                        print(f"error get tool response of {function_call.args}")
-                        raise HTTPException(status_code=500,details = f"Error calling tool {e}")
+                        import traceback
+                        traceback.print_exc()
+                        raise HTTPException(status_code=500, detail=f"Tool call failed: {str(e)}")
                 else:
                     print("No function call found in the response.")
                     print(response.candidates[0].content.parts[0].text)
