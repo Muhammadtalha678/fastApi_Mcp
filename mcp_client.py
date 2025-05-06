@@ -39,9 +39,7 @@ class McpClient:
     async def process_query(self,query:str):
         try:
             """ when user hit the query save in self.messages""" 
-            self.messages.append(
-                types.Content(role="user",parts=[types.Part(text=query)])
-            )
+            self.messages = [types.Content(role="user",parts=[types.Part(text=query.strip())])]
             # print()
             # print("first message with query",self.messages)
             # print()
