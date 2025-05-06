@@ -15,6 +15,7 @@ class QuerySchema(BaseModel):
 async def lifespan(app:FastAPI):
     client = McpClient()
     try:
+        # connected = await client.connect_to_server('http://127.0.0.1:3000/sse')
         connected = await client.connect_to_server(f'{SERVER_URL}')
         if not connected:
              raise HTTPException(
