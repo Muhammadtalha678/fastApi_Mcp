@@ -39,7 +39,7 @@ class McpClient:
     async def process_query(self,query:str):
         try:
             """ when user hit the query save in self.messages""" 
-            self.messages = [types.Content(role="user",parts=[types.Part(text=query.strip())])]
+            self.messages = [types.Content(role="user",parts=[types.Part(text=query)])]
             # print()
             # print("first message with query",self.messages)
             # print()
@@ -81,8 +81,8 @@ class McpClient:
                         """now finally send this self.messages list to llm to get final result that get from mcp server by calling tool purpose of this call to llm to get more understandable answer"""
                         # print()
                         final_result = self.client.models.generate_content(
-                            model="gemini-2.0-flash",
-                            config=types.GenerateContentConfig(temperature=0),
+                            model="gemini-2.5-flash-preview-04-17",
+                            config=types.GenerateContentConfig(temperature=1),
                             contents=self.messages
                         )
                         self.messages.append(
@@ -129,8 +129,8 @@ class McpClient:
             ]
             # print(available_tools)
             return self.client.models.generate_content(
-                    model="gemini-2.0-flash",
-                    config=types.GenerateContentConfig(temperature=0,tools=available_tools),
+                    model="gemini-2.5-flash-preview-04-17",
+                    config=types.GenerateContentConfig(temperature=1,tools=available_tools),
                     contents=self.messages
                 )
         except Exception as e:
