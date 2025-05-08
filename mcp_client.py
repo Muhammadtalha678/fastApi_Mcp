@@ -36,38 +36,95 @@ class McpClient:
         except Exception as e:
              raise(e)      
     
+    # async def process_query(self,query:str):
+    #     try:
+    #         # Force LLM to only use tools by embedding a strong instruction in the query.
+    #         tool_only_query = f"{query}. Important: Only use available tools. Do not answer directly."
+    #         """ when user hit the query save in self.messages""" 
+    #         self.messages = [types.Content(role="user",parts=[types.Part(text=tool_only_query)])]
+    #         # print()
+    #         # print("first message with query",self.messages)
+    #         # print()
+    #         while True:
+    #             """now call the call_llm function to get response from gemini""" 
+    #             response  = await self.call_llm()
+    #             # print("response--->>>",response)
+    #             content = response.candidates[0].content
+    #             parts = content.parts
+                
+    #             # print()
+    #             # print("second message with fnction call by llm",self.messages)
+    #             # print()
+                
+    #             # if response.candidates[0].content.parts[0].function_call:
+    #             if parts and parts[0].function_call:
+    #                 """After call call_llm llm return the function tool that we send with useer query and all tools fetch from mcp server and now append with self.messages funtion call send by llm according to query"""
+    #                 function_call = parts[0].function_call
+    #                 self.messages.append(
+    #                 types.Content(role=content.role,parts=[types.Part(function_call=function_call)])
+    #                 )
+                    
+    #                 print(f"Function to call: {function_call.name}")
+    #                 print(f"Arguments: {function_call.args}")
+    #                 try:
+    #                     """After get tool send by llm now call that tool to mcp server to fetch data according to that function and append result to self.messages """
+    #                     result = await self.session.call_tool(name=f"{function_call.name}",arguments=function_call.args)
+                        
+    #                     self.messages.append(
+    #                         types.Content(role="tool_use",
+    #                         parts=[types.Part.from_function_response(
+    #                             name=function_call.name,
+    #                             response={"result":result}
+    #                         )]),
+                            
+    #                     )
+    #                     # print()
+    #                     # print("third message from mcp server tool give by llm",self.messages)
+    #                     """now finally send this self.messages list to llm to get final result that get from mcp server by calling tool purpose of this call to llm to get more understandable answer"""
+    #                     # print()
+    #                     final_result = self.client.models.generate_content(
+    #                         model="gemini-2.5-flash-preview-04-17",
+    #                         config=types.GenerateContentConfig(temperature=1),
+    #                         contents=self.messages
+    #                     )
+    #                     self.messages.append(
+    #                         types.Content(role=final_result.candidates[0].content.role,parts=[types.Part(text=final_result.candidates[0].content.parts[0].text)]) 
+    #                     )
+    #                     break
+    #                 except Exception as e:
+    #                     # print(f"error get tool response of {function_call.name}")
+    #                     # print(f"error get tool response of {function_call.args}")
+    #                     raise HTTPException(status_code=500,detail = f"Error calling tool {str(e)}")
+    #                     break
+    #             else:
+    #                 print("No function call found in the response.")
+    #                 print(response.candidates[0].content.parts[0].text)
+    #                 self.messages.append(
+    #                         types.Content(
+    #                             role=content.role,
+    #                             parts=[types.Part(text=response.candidates[0].content.parts[0].text)]
+    #                         )
+                        
+    #                 )
+    #                 break
+    #         return self.messages
+                    
+    #     except Exception as e:
+    #         raise(e)
+
     async def process_query(self,query:str):
         try:
-            # Force LLM to only use tools by embedding a strong instruction in the query.
             tool_only_query = f"{query}. Important: Only use available tools. Do not answer directly."
-            """ when user hit the query save in self.messages""" 
             self.messages = [types.Content(role="user",parts=[types.Part(text=tool_only_query)])]
-            # print()
-            # print("first message with query",self.messages)
-            # print()
-            while True:
-                """now call the call_llm function to get response from gemini""" 
-                response  = await self.call_llm()
-                # print("response--->>>",response)
-                content = response.candidates[0].content
-                parts = content.parts
-                
-                # print()
-                # print("second message with fnction call by llm",self.messages)
-                # print()
-                
-                # if response.candidates[0].content.parts[0].function_call:
-                if parts and parts[0].function_call:
-                    """After call call_llm llm return the function tool that we send with useer query and all tools fetch from mcp server and now append with self.messages funtion call send by llm according to query"""
+            response  = await self.call_llm()
+            content = response.candidates[0].content
+            parts = content.parts
+            if parts and parts[0].function_call:
                     function_call = parts[0].function_call
                     self.messages.append(
-                    types.Content(role=content.role,parts=[types.Part(function_call=function_call)])
-                    )
-                    
-                    print(f"Function to call: {function_call.name}")
-                    print(f"Arguments: {function_call.args}")
+                    types.Content(role=content.role,parts=[types.Part         (function_call=function_call)])
+                    ) 
                     try:
-                        """After get tool send by llm now call that tool to mcp server to fetch data according to that function and append result to self.messages """
                         result = await self.session.call_tool(name=f"{function_call.name}",arguments=function_call.args)
                         
                         self.messages.append(
@@ -78,10 +135,7 @@ class McpClient:
                             )]),
                             
                         )
-                        # print()
-                        # print("third message from mcp server tool give by llm",self.messages)
-                        """now finally send this self.messages list to llm to get final result that get from mcp server by calling tool purpose of this call to llm to get more understandable answer"""
-                        # print()
+    
                         final_result = self.client.models.generate_content(
                             model="gemini-2.5-flash-preview-04-17",
                             config=types.GenerateContentConfig(temperature=1),
@@ -90,14 +144,13 @@ class McpClient:
                         self.messages.append(
                             types.Content(role=final_result.candidates[0].content.role,parts=[types.Part(text=final_result.candidates[0].content.parts[0].text)]) 
                         )
-                        break
                     except Exception as e:
                         # print(f"error get tool response of {function_call.name}")
                         # print(f"error get tool response of {function_call.args}")
-                        raise HTTPException(status_code=500,detail = f"Error calling tool {str(e)}")
-                else:
-                    print("No function call found in the response.")
-                    print(response.candidates[0].content.parts[0].text)
+                        print(e)
+                        raise HTTPException(status_code=500,detail = f"Error calling tool {str(e)}")   
+            else:
+    
                     self.messages.append(
                             types.Content(
                                 role=content.role,
@@ -105,11 +158,11 @@ class McpClient:
                             )
                         
                     )
-                    break
             return self.messages
                     
         except Exception as e:
             raise(e)
+
 
     async def call_llm(self):
         """Call llm with tools get when app start first time and with self.messages having user quer and user role"""
