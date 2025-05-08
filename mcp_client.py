@@ -125,6 +125,7 @@ class McpClient:
                     print("Function to call name",parts[0].function_call.name)
                     print("Function to call",parts[0].function_call.args)
                     function_call = parts[0].function_call
+                    print(dict(function_call.args))
                     self.messages.append(
                     types.Content(role=content.role,parts=[types.Part         (function_call=function_call)])
                     ) 
