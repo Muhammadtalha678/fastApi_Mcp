@@ -119,7 +119,11 @@ class McpClient:
             response  = await self.call_llm()
             content = response.candidates[0].content
             parts = content.parts
+            print(response)
             if parts and parts[0].function_call:
+                    print("Function to call",parts[0].function_call)
+                    print("Function to call name",parts[0].function_call.name)
+                    print("Function to call",parts[0].function_call.args)
                     function_call = parts[0].function_call
                     self.messages.append(
                     types.Content(role=content.role,parts=[types.Part         (function_call=function_call)])
