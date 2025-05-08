@@ -38,8 +38,10 @@ class McpClient:
     
     async def process_query(self,query:str):
         try:
+            # Force LLM to only use tools by embedding a strong instruction in the query.
+            tool_only_query = f"{query}. Important: Only use available tools. Do not answer directly."
             """ when user hit the query save in self.messages""" 
-            self.messages = [types.Content(role="user",parts=[types.Part(text=query)])]
+            self.messages = [types.Content(role="user",parts=[types.Part(text=tool_only_query)])]
             # print()
             # print("first message with query",self.messages)
             # print()
@@ -57,11 +59,11 @@ class McpClient:
                 # if response.candidates[0].content.parts[0].function_call:
                 if parts and parts[0].function_call:
                     """After call call_llm llm return the function tool that we send with useer query and all tools fetch from mcp server and now append with self.messages funtion call send by llm according to query"""
+                    function_call = parts[0].function_call
                     self.messages.append(
-                    types.Content(role=response.candidates[0].content.role,parts=[types.Part(function_call=parts[0].function_call)])
+                    types.Content(role=content.role,parts=[types.Part(function_call=function_call)])
                     )
                     
-                    function_call = parts[0].function_call
                     print(f"Function to call: {function_call.name}")
                     print(f"Arguments: {function_call.args}")
                     try:
@@ -92,17 +94,12 @@ class McpClient:
                     except Exception as e:
                         # print(f"error get tool response of {function_call.name}")
                         # print(f"error get tool response of {function_call.args}")
-                        raise HTTPException(status_code=500,details = f"Error calling tool {e}")
+                        raise HTTPException(status_code=500,detail =f"Error calling tool {e}")
                 else:
                     print("No function call found in the response.")
                     print(response.candidates[0].content.parts[0].text)
-                    self.messages.append(
-                            types.Content(
-                                role=content.role,
-                                parts=[types.Part(text=response.candidates[0].content.parts[0].text)]
-                            )
-                        
-                    )
+                    raise HTTPException(status_code=400,detail = f"Query must be answered using tools only. LLM did not return a function_call.")
+                    
                     break
             return self.messages
                     
