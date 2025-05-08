@@ -94,12 +94,17 @@ class McpClient:
                     except Exception as e:
                         # print(f"error get tool response of {function_call.name}")
                         # print(f"error get tool response of {function_call.args}")
-                        raise HTTPException(status_code=500,detail =f"Error calling tool {e}")
+                        raise HTTPException(status_code=500,detail = f"Error calling tool {e}")
                 else:
                     print("No function call found in the response.")
                     print(response.candidates[0].content.parts[0].text)
-                    raise HTTPException(status_code=400,detail = f"Query must be answered using tools only. LLM did not return a function_call.")
-                    
+                    self.messages.append(
+                            types.Content(
+                                role=content.role,
+                                parts=[types.Part(text=response.candidates[0].content.parts[0].text)]
+                            )
+                        
+                    )
                     break
             return self.messages
                     
