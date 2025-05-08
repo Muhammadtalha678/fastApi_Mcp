@@ -88,12 +88,11 @@ class McpClient:
                         self.messages.append(
                             types.Content(role=final_result.candidates[0].content.role,parts=[types.Part(text=final_result.candidates[0].content.parts[0].text)]) 
                         )
-                        # print("final_result",final_result.candidates[0].content.parts[0].text)
                         break
                     except Exception as e:
-                        import traceback
-                        traceback.print_exc()
-                        raise HTTPException(status_code=500, detail=f"Tool call failed: {str(e)}")
+                        # print(f"error get tool response of {function_call.name}")
+                        # print(f"error get tool response of {function_call.args}")
+                        raise HTTPException(status_code=500,details = f"Error calling tool {e}")
                 else:
                     print("No function call found in the response.")
                     print(response.candidates[0].content.parts[0].text)
