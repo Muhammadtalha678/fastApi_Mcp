@@ -68,7 +68,7 @@ class McpClient:
                     print(f"Arguments: {function_call.args}")
                     try:
                         """After get tool send by llm now call that tool to mcp server to fetch data according to that function and append result to self.messages """
-                        result = await self.session.call_tool(name=function_call.name,arguments=function_call.args)
+                        result = await self.session.call_tool(name=f"{function_call.name}",arguments=function_call.args)
                         
                         self.messages.append(
                             types.Content(role="tool_use",
