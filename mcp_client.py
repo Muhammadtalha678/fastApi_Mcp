@@ -6,6 +6,7 @@ from contextlib import AsyncExitStack
 from google import genai
 from config import GOOGLE_API_KEY
 from google.genai import types
+import json
 class McpClient:
     def __init__(self):
         self.tools = []
@@ -125,12 +126,23 @@ class McpClient:
                     print("Function to call name",parts[0].function_call.name)
                     print("Function to call",parts[0].function_call.args)
                     function_call = parts[0].function_call
-                    print(dict(function_call.args))
+                    args = function_call.args
+
                     self.messages.append(
                     types.Content(role=content.role,parts=[types.Part         (function_call=function_call)])
                     ) 
+                    if isinstance(args,str):
+                        try:
+                            args_dict = json.loads(args)
+                        except json.JSONDecodeError:
+                            raise ValueError("Invalid JSON in function_call.args string")
+                            
+                    elif isinstance(args, dict):
+                        args_dict = args
+                    else:
+                        raise ValueError(f"Unsupported args type: {type(args)}")
                     try:
-                        result = await self.session.call_tool(name=f"{function_call.name}",arguments=function_call.args)
+                        result = await self.session.call_tool(name=f"{function_call.name}",arguments=args_dict)
                         
                         self.messages.append(
                             types.Content(role="tool_use",
